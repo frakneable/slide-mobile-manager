@@ -1,0 +1,16 @@
+# Ignore Python build and distribution folders
+build/
+dist/
+__pycache__/
+*.spec
+
+# Ignore Windows executables
+*.exe
+
+# Ignore QR code images generated at runtime
+qrcode.png
+
+# Ignore environment files
+.env
+.venv/
+venv/
