@@ -1,50 +1,158 @@
-# Slide Mobile Manager
+# Slide Mobile Manager (backend)
 
-A simple Flask-based remote slide controller for presentations, with QR code access for mobile devices.
+This repository is being rebuilt as a multi-tenant slide controller platform.
 
-## Requirements
-- Python 3.8+
+The architecture splits into:
+- **Backend (FastAPI)**: WebSocket hub that connects desktop agents and mobile controllers.
+- **Agent**: Small desktop app running on the presenter PC, listening for commands.
+- **Controller Web App**: Mobile-friendly UI (hosted over HTTPS) sending commands.
+
+This README currently documents **step 1**: the backend protocol and basic FastAPI scaffolding.
+
+## Backend Requirements
+
+- Python 3.10+
 - pip (Python package manager)
 
-## Installation
-1. Install dependencies:
+Install backend dependencies:
 
 ```powershell
-pip install flask pyautogui qrcode
+pip install -r requirements.txt
 ```
 
-2. (Optional) If you want to build a standalone Windows executable:
+Run the FastAPI app (dev):
 
 ```powershell
-pip install pyinstaller
+uvicorn backend.app:app --reload
 ```
 
-## Running the App (with Console)
+Health check:
 
-### Option 1: Run with Python (recommended for development)
+- `GET /health` → `{ "status": "ok", "version": "0.1.0" }`
+
+## Message Protocol (Draft)
+
+Messages are JSON sent over WebSockets (agent/controller ↔ backend). All messages share a `type` field.
+
+### Common
+
+Base envelope:
+
+```json
+{
+	"type": "agent_register" | "agent_heartbeat" | "session_assigned" | "join_session" | "command"
+}
+```
+
+### Agent → Backend
+
+**Register agent**
+
+```json
+{
+	"type": "agent_register",
+	"agent_id": "pc-123456",
+	"version": "1.0.0"
+}
+```
+
+**Heartbeat**
+
+```json
+{
+	"type": "agent_heartbeat",
+	"agent_id": "pc-123456"
+}
+```
+
+### Backend → Agent
+
+**Session assigned**
+
+```json
+{
+	"type": "session_assigned",
+	"session_id": "ABCD12"
+}
+```
+
+### Controller → Backend
+
+**Join a session**
+
+```json
+{
+	"type": "join_session",
+	"session_id": "ABCD12",
+	"controller_id": "phone-xyz"
+}
+```
+
+**Send a command**
+
+```json
+{
+	"type": "command",
+	"session_id": "ABCD12",
+	"command": "next",  // or "prev"
+	"controller_id": "phone-xyz"
+}
+```
+
+> Validation of `command` values (only `next` / `prev`) will be implemented when we wire the WebSocket endpoints in the next step.
+
+## Next Steps
+
+1. Connect an **agent** client to `ws://localhost:8000/ws/agent`.
+2. Connect a **controller** client to `ws://localhost:8000/ws/controller`.
+3. Verify commands flow only to the correct agent based on `session_id`.
+
+### Manual WebSocket Test Flow
+
+1. Start the backend:
 
 ```powershell
-python app.py
+uvicorn backend.app:app --reload
 ```
 
-### Option 2: Build and run as a Windows executable (with console)
+2. As agent (use a WebSocket tester or simple script), connect to `/ws/agent` and send:
 
-1. Build the executable:
-
-```powershell
-py -m PyInstaller --onefile app.py
+```json
+{
+	"type": "agent_register",
+	"agent_id": "pc-123",
+	"version": "1.0.0"
+}
 ```
 
-2. Run the generated executable:
+You should receive:
 
-```powershell
-./dist/app.exe
+```json
+{
+	"type": "session_assigned",
+	"session_id": "<CODE>"
+}
 ```
 
-## Usage
-- After starting the app, scan the QR code or open the provided URL on your mobile device.
-- Use the on-screen buttons to control your presentation slides remotely.
+3. As controller, connect to `/ws/controller` and send:
 
-## Notes
-- Make sure your computer and mobile device are on the same network.
-- If you rebuild the executable and get a permission error, close all running instances of `app.exe` first.
+```json
+{
+	"type": "join_session",
+	"session_id": "<CODE>",
+	"controller_id": "phone-1"
+}
+```
+
+4. From the same controller connection, send a command:
+
+```json
+{
+	"type": "command",
+	"session_id": "<CODE>",
+	"command": "next",
+	"controller_id": "phone-1"
+}
+```
+
+The agent connection should receive the same `command` message, scoped to that `session_id`.
