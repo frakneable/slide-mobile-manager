@@ -21,6 +21,8 @@ from typing import Optional
 import pyautogui
 import websockets
 from websockets.exceptions import ConnectionClosedError
+import qrcode
+from PIL import ImageTk
 
 try:
     import tkinter as tk
@@ -29,9 +31,23 @@ except Exception:  # pragma: no cover - Tkinter may not be available in some env
     tk = None
     ttk = None
 
+BCK_DEFAULT_URL = "wss://slide-mobile-manager.onrender.com/ws/agent"
+BACKEND_URL = os.getenv("SLIDE_BACKEND_URL", BCK_DEFAULT_URL)
 
-BACKEND_URL = os.getenv("SLIDE_BACKEND_URL", "wss://slide-mobile-manager.onrender.com/ws/agent")
-AGENT_SHARED_SECRET = os.getenv("AGENT_SHARED_SECRET")
+# Base URL for the controller web UI used to build QR codes.
+# Set SLIDE_CONTROLLER_URL or change the default before building
+# the production exe so that the QR code points to your live
+# controller route (for example: https://your-site.netlify.app/remote/).
+CONTROLLER_DEFAULT_URL = "https://candid-cascaron-59da49.netlify.app/remote/"
+CONTROLLER_URL = os.getenv("SLIDE_CONTROLLER_URL", CONTROLLER_DEFAULT_URL)
+
+# For a zero-config production build, you can set this to the
+# same value as the backend's AGENT_SHARED_SECRET before
+# compiling the exe. For local dev, leave it empty and/or
+# override via the AGENT_SHARED_SECRET environment variable.
+DEFAULT_AGENT_SHARED_SECRET = "sfTmDWn4J1!&t6fRg$CrMXd0P"
+AGENT_SHARED_SECRET = os.getenv("AGENT_SHARED_SECRET", DEFAULT_AGENT_SHARED_SECRET)
+
 AGENT_VERSION = "0.1.0"
 HEARTBEAT_INTERVAL_SECONDS = 15.0
 RECONNECT_DELAY_SECONDS = 5.0
@@ -45,6 +61,16 @@ class UiState:
     status_text: str = "Starting..."
     session_id: str = "-"
     last_error: Optional[str] = None
+
+
+def build_controller_url(session_id: Optional[str]) -> Optional[str]:
+    """Build the controller URL (with session prefilled) for QR code use."""
+
+        
+    if not session_id or session_id == "-":
+        return None
+    base = CONTROLLER_URL.rstrip("/")
+    return f"{base}/?session={session_id}"
 
 
 def handle_command(command: Optional[str]) -> None:
@@ -202,12 +228,39 @@ def run_gui() -> None:
     status_label = tk.Label(main_frame, textvariable=status_var, font=("Segoe UI", 9), wraplength=260, justify="left")
     status_label.grid(row=2, column=1, sticky="w", pady=(8, 0))
 
+    tk.Label(
+        main_frame,
+        text="Scan this QR code on your phone to open the controller:",
+        font=("Segoe UI", 9),
+        wraplength=260,
+        justify="left",
+    ).grid(row=3, column=0, columnspan=2, sticky="w", pady=(12, 4))
+
+    qr_label = tk.Label(main_frame)
+    qr_label.grid(row=4, column=0, columnspan=2, pady=(0, 4))
+
+    qr_photo_ref = {"image": None}  # keep a reference so Tkinter doesn't GC the image
+
     def on_quit() -> None:
         ui_state.running = False
         root.destroy()
 
     quit_btn = ttk.Button(main_frame, text="Quit", command=on_quit)
-    quit_btn.grid(row=3, column=0, columnspan=2, pady=(16, 0))
+    quit_btn.grid(row=5, column=0, columnspan=2, pady=(16, 0))
+
+    def update_qr() -> None:
+        url = build_controller_url(ui_state.session_id)
+        if not url:
+            qr_label.configure(image="")
+            qr_photo_ref["image"] = None
+            return
+        qr = qrcode.QRCode(border=1, box_size=6)
+        qr.add_data(url)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+        photo = ImageTk.PhotoImage(img)
+        qr_label.configure(image=photo)
+        qr_photo_ref["image"] = photo
 
     def poll_queue() -> None:
         while True:
@@ -221,6 +274,8 @@ def run_gui() -> None:
                 if ui_state.last_error:
                     status_text = f"{status_text}\nLast error: {ui_state.last_error}"
                 status_var.set(status_text)
+                if msg.get("type") == "session":
+                    update_qr()
         if ui_state.running:
             root.after(500, poll_queue)
 

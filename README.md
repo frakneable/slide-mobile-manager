@@ -118,7 +118,8 @@ python -m http.server 8080
 
 Open in a browser on the same machine:
 
-- `http://127.0.0.1:8080/controller/`
+- Landing page: `http://127.0.0.1:8080/controller/`
+- Controller UI: `http://127.0.0.1:8080/controller/remote/`
 
 Flow:
 
@@ -186,7 +187,7 @@ The agent will register with the Render backend and print a session code, exactl
 1. **Start the Agent** on your computer.
 	 - A console window appears and prints: `Your code: 8ABB57`.
 2. **Open the Controller** on your phone.
-	 - Go to your Netlify URL, e.g. `https://YOUR-NETLIFY-SITE.netlify.app/`.
+	 - Go to your Netlify controller URL, e.g. `https://YOUR-NETLIFY-SITE.netlify.app/remote/` (or scan the QR code shown in the Agent).
 3. **Join the session.**
 	 - Type the code from the agent (e.g. `8ABB57`) and tap **Join**.
 4. **Control the slides.**

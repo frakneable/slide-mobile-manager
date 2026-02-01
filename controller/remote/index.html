@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slide Controller</title>
+  <style>
+    :root {
+      color-scheme: dark light;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #20263a, #050712);
+      color: #f5f5f5;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(15, 17, 30, 0.96);
+      border-radius: 18px;
+      padding: 20px 20px 24px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.4rem;
+      letter-spacing: 0.03em;
+    }
+
+    .subtitle {
+      margin: 0 0 16px;
+      font-size: 0.86rem;
+      opacity: 0.75;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.7;
+      margin-bottom: 8px;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(7, 10, 24, 0.92);
+      color: #f5f5f5;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      text-align: center;
+    }
+
+    input[type="text"]::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #5b8cff;
+      box-shadow: 0 0 0 1px rgba(91, 140, 255, 0.4);
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+    }
+
+    button:active {
+      transform: scale(0.97);
+      box-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #5b8cff, #9b6bff);
+      color: #fff;
+      box-shadow: 0 8px 22px rgba(91, 140, 255, 0.5);
+      white-space: nowrap;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: #f5f5f5;
+      border-radius: 14px;
+      font-size: 0.85rem;
+      padding: 8px 14px;
+    }
+
+    .divider {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      margin: 16px 0 14px;
+    }
+
+    .status {
+      font-size: 0.8rem;
+      line-height: 1.4;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(12, 16, 32, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      min-height: 42px;
+    }
+
+    .status span {
+      display: block;
+      opacity: 0.85;
+    }
+
+    .status .status-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.6;
+      margin-bottom: 3px;
+    }
+
+    .status-ok {
+      color: #8de49d;
+    }
+
+    .status-warn {
+      color: #ffd27f;
+    }
+
+    .status-error {
+      color: #ff8a8a;
+    }
+
+    .controls {
+      display: none;
+      margin-top: 6px;
+    }
+
+    .controls.active {
+      display: block;
+    }
+
+    .controls-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .control-btn {
+      flex: 1;
+      padding: 16px 10px;
+      font-size: 1.05rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #f5f5f5;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+    }
+
+    .control-btn.control-next {
+      background: linear-gradient(135deg, #5b8cff, #9b6bff);
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 4px 9px;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Slide Controller</h1>
+    <p class="subtitle">Enter the code shown on your computer to pair this phone with your presentation.</p>
+
+    <div id="join-view">
+      <div class="section-title">Session code</div>
+      <div class="field-row">
+        <input
+          id="session-input"
+          type="text"
+          inputmode="text"
+          autocomplete="one-time-code"
+          maxlength="8"
+          placeholder="ABC123"
+        />
+        <button id="join-btn" class="btn-primary">Join</button>
+      </div>
+      <div class="status" id="status-box">
+        <span class="status-label">Status</span>
+        <span id="status-text">Not connected.</span>
+      </div>
+    </div>
+
+    <div id="controls" class="controls">
+      <div class="divider"></div>
+      <div class="section-title">Controls</div>
+      <div class="controls-buttons">
+        <button id="prev-btn" class="control-btn control-prev">
+          Prev
+        </button>
+        <button id="next-btn" class="control-btn control-next">
+          Next
+        </button>
+      </div>
+
+      <div class="meta-row">
+        <span id="ws-indicator" class="chip">WS: Disconnected</span>
+        <span id="wakelock-indicator" class="chip">Screen: Default</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === Configuration ===
+    // For local development (backend on your machine):
+    //   const BACKEND_WS_URL = "ws://127.0.0.1:8000/ws/controller";
+    // For production (backend deployed with TLS):
+    //   const BACKEND_WS_URL = "wss://YOUR-BACKEND-HOST/ws/controller";
+
+    const BACKEND_WS_URL = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+      ? "ws://127.0.0.1:8000/ws/controller"
+      : "wss://slide-mobile-manager.onrender.com/ws/controller";
+
+    const joinView = document.getElementById("join-view");
+    const controlsView = document.getElementById("controls");
+    const sessionInput = document.getElementById("session-input");
+    const joinBtn = document.getElementById("join-btn");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const statusBox = document.getElementById("status-box");
+    const statusText = document.getElementById("status-text");
+    const wsIndicator = document.getElementById("ws-indicator");
+    const wakeLockIndicator = document.getElementById("wakelock-indicator");
+
+    let ws = null;
+    let currentSessionId = null;
+    let controllerId = "ctrl-" + Math.random().toString(16).slice(2, 8);
+    let wakeLock = null;
+
+    function setStatus(text, level = "info") {
+      statusText.textContent = text;
+      statusBox.classList.remove("status-ok", "status-warn", "status-error");
+      if (level === "ok") statusBox.classList.add("status-ok");
+      if (level === "warn") statusBox.classList.add("status-warn");
+      if (level === "error") statusBox.classList.add("status-error");
+    }
+
+    function setWsIndicator(connected) {
+      if (connected) {
+        wsIndicator.textContent = "WS: Connected";
+      } else {
+        wsIndicator.textContent = "WS: Disconnected";
+      }
+    }
+
+    function setWakeLockIndicator(text) {
+      wakeLockIndicator.textContent = text;
+    }
+
+    async function requestWakeLock() {
+      if (!("wakeLock" in navigator)) {
+        setWakeLockIndicator("Screen: Not supported");
+        setStatus("Wake Lock API not supported on this browser.", "warn");
+        return;
+      }
+
+      try {
+        wakeLock = await navigator.wakeLock.request("screen");
+        setWakeLockIndicator("Screen: On");
+        setStatus("Connected. Screen will stay awake while this tab is visible.", "ok");
+
+        wakeLock.addEventListener("release", () => {
+          setWakeLockIndicator("Screen: Released");
+        });
+      } catch (err) {
+        console.error("Wake Lock error", err);
+        setWakeLockIndicator("Screen: Error");
+        setStatus("Could not keep the screen awake (" + err.name + ")", "warn");
+      }
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && !wakeLock) {
+        requestWakeLock();
+      }
+    });
+
+    function connect(sessionId) {
+      if (!sessionId) return;
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+
+      setStatus("Connecting to session " + sessionId + "...");
+      setWsIndicator(false);
+
+      ws = new WebSocket(BACKEND_WS_URL);
+      currentSessionId = sessionId;
+
+      ws.onopen = () => {
+        console.log("WS open");
+        setWsIndicator(true);
+        const joinMsg = {
+          type: "join_session",
+          session_id: currentSessionId,
+          controller_id: controllerId,
+        };
+        ws.send(JSON.stringify(joinMsg));
+        setStatus("Connected. You can now control the slides.", "ok");
+        joinView.style.display = "none";
+        controlsView.classList.add("active");
+        requestWakeLock();
+      };
+
+      ws.onmessage = (event) => {
+        console.log("WS message", event.data);
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === "error" && msg.error === "session_not_found") {
+            setStatus("Session not found. Check the code and try again.", "error");
+            joinView.style.display = "block";
+            controlsView.classList.remove("active");
+            ws.close();
+          }
+        } catch {
+          // ignore non-JSON messages
+        }
+      };
+
+      ws.onclose = (event) => {
+        console.log("WS closed", event.code, event.reason);
+        setWsIndicator(false);
+        if (controlsView.classList.contains("active")) {
+          setStatus("Disconnected from session. Tap Join to reconnect.", "warn");
+          joinView.style.display = "block";
+          controlsView.classList.remove("active");
+        }
+      };
+
+      ws.onerror = (event) => {
+        console.error("WS error", event);
+        setStatus("WebSocket error. Check your connection.", "error");
+      };
+    }
+
+    function sendCommand(command) {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        setStatus("Not connected. Join a session first.", "warn");
+        return;
+      }
+      if (!currentSessionId) return;
+
+      const msg = {
+        type: "command",
+        session_id: currentSessionId,
+        command,
+        controller_id: controllerId,
+      };
+      ws.send(JSON.stringify(msg));
+      console.log("Sent command", msg);
+
+      if ("vibrate" in navigator) {
+        navigator.vibrate(10);
+      }
+    }
+
+    joinBtn.addEventListener("click", () => {
+      const raw = sessionInput.value.trim();
+      if (!raw) {
+        setStatus("Enter the 4	6 character code from your computer.", "warn");
+        return;
+      }
+      const sessionId = raw.toUpperCase();
+      sessionInput.value = sessionId;
+      connect(sessionId);
+    });
+
+    sessionInput.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        joinBtn.click();
+      }
+    });
+
+    prevBtn.addEventListener("click", () => sendCommand("prev"));
+    nextBtn.addEventListener("click", () => sendCommand("next"));
+
+    // Optionally pre-fill session from ?session=CODE in URL
+    const params = new URLSearchParams(window.location.search);
+    const preset = params.get("session");
+    if (preset) {
+      sessionInput.value = preset.toUpperCase();
+    }
+  </script>
+</body>
+</html>
