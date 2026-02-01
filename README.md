@@ -29,6 +29,10 @@ The diagram shows:
 		- `agent_id \u2192 WebSocket`
 		- `session_id \u2192 agent_id`
 		- `session_id \u2192 [controller WebSockets]`
+	- Periodically cleans up **idle sessions**:
+		- Agents send periodic `agent_heartbeat` messages.
+		- The backend tracks the last-seen time per `agent_id`.
+		- Agents (and their sessions/controllers) that are inactive for a configured TTL are automatically removed.
 
 - **Agent (Desktop Python app)**
 	- File: `agent/main.py`
@@ -226,6 +230,45 @@ All messages are JSON objects sent over WebSocket with a `type` field.
 }
 ```
 
+The backend uses these heartbeats to track activity and expire **idle agents and sessions** after a configurable timeout.
+
+**Agent authentication (optional, shared secret)**
+
+When enabled, each agent must include a shared secret in its `agent_register` message.
+
+Backend configuration:
+
+- Environment variable: `AGENT_SHARED_SECRET`
+  - If unset/empty: auth is disabled (useful for local development).
+  - If set: all agents must send a matching `secret` field.
+
+Agent configuration:
+
+- Environment variable: `AGENT_SHARED_SECRET` (same value as backend).
+- The agent automatically includes this value in the `secret` field when registering.
+
+Example agent_register with secret:
+
+```json
+{
+	"type": "agent_register",
+	"agent_id": "pc-123456",
+	"version": "1.0.0",
+	"secret": "<YOUR-SHARED-SECRET>"
+}
+```
+
+If the secret is missing or incorrect while auth is enabled, the backend replies with:
+
+```json
+{
+	"type": "error",
+	"error": "unauthorized"
+}
+```
+
+and closes the WebSocket. The Agent GUI will show a reconnecting/error status and keep retrying.
+
 ### Backend \u2192 Agent
 
 **Session assigned** (response to `agent_register`):
@@ -379,7 +422,7 @@ Planned enhancements:
 
 - Packaged Windows installer/exe for the Agent (PyInstaller).
 - Simple GUI for the Agent showing status + session code.
-- Session timeouts and cleanup.
+- Session timeouts and cleanup. **(Basic TTL-based cleanup is already implemented; this item covers making it configurable and more observable.)**
 - Optional authentication / per-user tokens for agents.
 - Analytics or basic metrics (e.g. number of sessions, commands per session).
 

@@ -31,6 +31,7 @@ except Exception:  # pragma: no cover - Tkinter may not be available in some env
 
 
 BACKEND_URL = os.getenv("SLIDE_BACKEND_URL", "wss://slide-mobile-manager.onrender.com/ws/agent")
+AGENT_SHARED_SECRET = os.getenv("AGENT_SHARED_SECRET")
 AGENT_VERSION = "0.1.0"
 HEARTBEAT_INTERVAL_SECONDS = 15.0
 RECONNECT_DELAY_SECONDS = 5.0
@@ -99,6 +100,8 @@ async def agent_loop(ui_state: UiState, ui_queue: "queue.Queue[dict]") -> None:
                     "agent_id": agent_id,
                     "version": AGENT_VERSION,
                 }
+                if AGENT_SHARED_SECRET:
+                    register_msg["secret"] = AGENT_SHARED_SECRET
                 await ws.send(json.dumps(register_msg))
 
                 # Wait for session_assigned
