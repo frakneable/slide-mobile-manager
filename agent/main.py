@@ -19,7 +19,7 @@ import websockets
 import contextlib
 
 
-BACKEND_URL = os.getenv("SLIDE_BACKEND_URL", "ws://127.0.0.1:8000/ws/agent")
+BACKEND_URL = os.getenv("SLIDE_BACKEND_URL", "wss://slide-mobile-manager.onrender.com/ws/agent")
 AGENT_VERSION = "0.1.0"
 HEARTBEAT_INTERVAL_SECONDS = 15.0
 
