@@ -38,7 +38,7 @@ BACKEND_URL = os.getenv("SLIDE_BACKEND_URL", BCK_DEFAULT_URL)
 # Set SLIDE_CONTROLLER_URL or change the default before building
 # the production exe so that the QR code points to your live
 # controller route (for example: https://your-site.netlify.app/remote/).
-CONTROLLER_DEFAULT_URL = "https://candid-cascaron-59da49.netlify.app/remote/"
+CONTROLLER_DEFAULT_URL = "https://slide-mobile-manager.netlify.app/remote/"
 CONTROLLER_URL = os.getenv("SLIDE_CONTROLLER_URL", CONTROLLER_DEFAULT_URL)
 
 # For a zero-config production build, you can set this to the

@@ -22,8 +22,30 @@
       justify-content: center;
       background: radial-gradient(circle at top, #20263a, #050712);
       color: #f5f5f5;
+      position: relative;
     }
 
+    /* Language Toggle in Top Right */
+    .lang-toggle-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: background 0.15s ease;
+    }
+    .lang-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
     .card {
       width: 100%;
       max-width: 420px;
@@ -83,7 +105,7 @@
       box-shadow: 0 0 0 1px rgba(91, 140, 255, 0.4);
     }
 
-    button {
+    button.btn-primary {
       border: none;
       cursor: pointer;
       border-radius: 999px;
@@ -97,26 +119,15 @@
       justify-content: center;
       gap: 6px;
       transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
-    }
-
-    button:active {
-      transform: scale(0.97);
-      box-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-primary {
       background: linear-gradient(135deg, #5b8cff, #9b6bff);
       color: #fff;
       box-shadow: 0 8px 22px rgba(91, 140, 255, 0.5);
       white-space: nowrap;
     }
 
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.06);
-      color: #f5f5f5;
-      border-radius: 14px;
-      font-size: 0.85rem;
-      padding: 8px 14px;
+    button.btn-primary:active {
+      transform: scale(0.97);
+      box-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
     }
 
     .divider {
@@ -182,6 +193,15 @@
       background: rgba(255, 255, 255, 0.06);
       color: #f5f5f5;
       box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+      border: none;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+    }
+
+    .control-btn:active {
+      transform: scale(0.97);
     }
 
     .control-btn.control-next {
@@ -208,12 +228,14 @@
   </style>
 </head>
 <body>
+  <button id="lang-toggle" class="lang-toggle-btn">PT-BR</button>
+  
   <div class="card">
-    <h1>Slide Controller</h1>
-    <p class="subtitle">Enter the code shown on your computer to pair this phone with your presentation.</p>
+    <h1 data-i18n="title">Slide Controller</h1>
+    <p class="subtitle" data-i18n="subtitle">Enter the code shown on your computer to pair this phone with your presentation.</p>
 
     <div id="join-view">
-      <div class="section-title">Session code</div>
+      <div class="section-title" data-i18n="sessionCode">Session code</div>
       <div class="field-row">
         <input
           id="session-input"
@@ -223,40 +245,132 @@
           maxlength="8"
           placeholder="ABC123"
         />
-        <button id="join-btn" class="btn-primary">Join</button>
+        <button id="join-btn" class="btn-primary" data-i18n="joinBtn">Join</button>
       </div>
       <div class="status" id="status-box">
-        <span class="status-label">Status</span>
-        <span id="status-text">Not connected.</span>
+        <span class="status-label" data-i18n="statusLabel">Status</span>
+        <span id="status-text" data-i18n="startStatus">Not connected.</span>
       </div>
     </div>
 
     <div id="controls" class="controls">
       <div class="divider"></div>
-      <div class="section-title">Controls</div>
+      <div class="section-title" data-i18n="controlsLabel">Controls</div>
       <div class="controls-buttons">
-        <button id="prev-btn" class="control-btn control-prev">
+        <button id="prev-btn" class="control-btn control-prev" data-i18n="prevBtn">
           Prev
         </button>
-        <button id="next-btn" class="control-btn control-next">
+        <button id="next-btn" class="control-btn control-next" data-i18n="nextBtn">
           Next
         </button>
       </div>
 
       <div class="meta-row">
-        <span id="ws-indicator" class="chip">WS: Disconnected</span>
-        <span id="wakelock-indicator" class="chip">Screen: Default</span>
+        <span id="ws-indicator" class="chip" data-i18n="wsDisconn">WS: Disconnected</span>
+        <span id="wakelock-indicator" class="chip" data-i18n="screenDef">Screen: Default</span>
       </div>
     </div>
   </div>
 
   <script>
-    // === Configuration ===
-    // For local development (backend on your machine):
-    //   const BACKEND_WS_URL = "ws://127.0.0.1:8000/ws/controller";
-    // For production (backend deployed with TLS):
-    //   const BACKEND_WS_URL = "wss://YOUR-BACKEND-HOST/ws/controller";
+    // === Internationalization ===
+    const trans = {
+      en: {
+        title: "Slide Controller",
+        subtitle: "Enter the code shown on your computer to pair this phone with your presentation.",
+        sessionCode: "Session code",
+        joinBtn: "Join",
+        statusLabel: "Status",
+        startStatus: "Not connected.",
+        controlsLabel: "Controls",
+        prevBtn: "Prev",
+        nextBtn: "Next",
+        wsDisconn: "WS: Disconnected",
+        wsConn: "WS: Connected",
+        screenDef: "Screen: Default",
+        screenNotSupp: "Screen: Not supported",
+        screenOn: "Screen: On",
+        screenRel: "Screen: Released",
+        screenErr: "Screen: Error",
 
+        msgWakeLockNotSupp: "Wake Lock API not supported on this browser.",
+        msgWakeLockOn: "Connected. Screen will stay awake while this tab is visible.",
+        msgWakeLockErr: "Could not keep the screen awake",
+        msgConnecting: "Connecting to session ",
+        msgConnected: "Connected. You can now control the slides.",
+        msgSessionNotFound: "Session not found. Check the code and try again.",
+        msgDisconnected: "Disconnected from session. Tap Join to reconnect.",
+        msgWsError: "WebSocket error. Check your connection.",
+        msgNotConn: "Not connected. Join a session first.",
+        msgInvalidCode: "Enter the 4-6 character code from your computer."
+      },
+      pt: {
+        title: "Controle de Slides",
+        subtitle: "Digite o código mostrado no seu computador para emparelhar este celular com sua apresentação.",
+        sessionCode: "Código da sessão",
+        joinBtn: "Entrar",
+        statusLabel: "Status",
+        startStatus: "Não conectado.",
+        controlsLabel: "Controles",
+        prevBtn: "Anterior",
+        nextBtn: "Próximo",
+        wsDisconn: "WS: Desconectado",
+        wsConn: "WS: Conectado",
+        screenDef: "Tela: Padrão",
+        screenNotSupp: "Tela: Não sup.",
+        screenOn: "Tela: Ligada",
+        screenRel: "Tela: Liberada",
+        screenErr: "Tela: Erro",
+
+        msgWakeLockNotSupp: "API de Wake Lock não suportada neste navegador.",
+        msgWakeLockOn: "Conectado. A tela não apagará enquanto esta aba estiver visível.",
+        msgWakeLockErr: "Não foi possível manter a tela acesa",
+        msgConnecting: "Conectando à sessão ",
+        msgConnected: "Conectado. Agora você pode controlar os slides.",
+        msgSessionNotFound: "Sessão não encontrada. Verifique o código e tente novamente.",
+        msgDisconnected: "Desconectado da sessão. Toque em Entrar para reconectar.",
+        msgWsError: "Erro de WebSocket. Verifique sua conexão.",
+        msgNotConn: "Não conectado. Entre em uma sessão primeiro.",
+        msgInvalidCode: "Digite o código de 4 a 6 caracteres do seu computador."
+      }
+    };
+
+    let currentLang = localStorage.getItem("preferredLang");
+    if (!currentLang) {
+      const browserLang = navigator.language || navigator.userLanguage;
+      currentLang = browserLang.toLowerCase().includes("pt") ? "pt" : "en";
+    }
+
+    function t(key) {
+      return trans[currentLang][key] || key;
+    }
+
+    function applyTranslations() {
+      document.documentElement.lang = currentLang;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const k = el.getAttribute("data-i18n");
+        if(trans[currentLang][k]) {
+          el.textContent = trans[currentLang][k];
+        }
+      });
+      const toggle = document.getElementById("lang-toggle");
+      if(toggle) toggle.textContent = currentLang === "en" ? "PT-BR" : "EN-US";
+      
+      // Update dynamic indicators if they map directly to static keys
+      if (!wsIndicator.textContent.includes('Connected') && !wsIndicator.textContent.includes('Conectado')) {
+        wsIndicator.textContent = t("wsDisconn");
+      } else {
+        wsIndicator.textContent = t("wsConn");
+      }
+    }
+
+    document.getElementById("lang-toggle").addEventListener("click", () => {
+      currentLang = currentLang === "en" ? "pt" : "en";
+      localStorage.setItem("preferredLang", currentLang);
+      applyTranslations();
+    });
+
+    // === Configuration ===
     const BACKEND_WS_URL = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
       ? "ws://127.0.0.1:8000/ws/controller"
       : "wss://slide-mobile-manager.onrender.com/ws/controller";
@@ -277,8 +391,11 @@
     let controllerId = "ctrl-" + Math.random().toString(16).slice(2, 8);
     let wakeLock = null;
 
-    function setStatus(text, level = "info") {
-      statusText.textContent = text;
+    // Apply translations on startup
+    applyTranslations();
+
+    function setStatus(textKey, level = "info", appendStr = "") {
+      statusText.textContent = trans[currentLang][textKey] ? trans[currentLang][textKey] + appendStr : textKey + appendStr;
       statusBox.classList.remove("status-ok", "status-warn", "status-error");
       if (level === "ok") statusBox.classList.add("status-ok");
       if (level === "warn") statusBox.classList.add("status-warn");
@@ -286,36 +403,32 @@
     }
 
     function setWsIndicator(connected) {
-      if (connected) {
-        wsIndicator.textContent = "WS: Connected";
-      } else {
-        wsIndicator.textContent = "WS: Disconnected";
-      }
+      wsIndicator.textContent = connected ? t("wsConn") : t("wsDisconn");
     }
 
-    function setWakeLockIndicator(text) {
-      wakeLockIndicator.textContent = text;
+    function setWakeLockIndicator(textKey) {
+      wakeLockIndicator.textContent = t(textKey) || textKey;
     }
 
     async function requestWakeLock() {
       if (!("wakeLock" in navigator)) {
-        setWakeLockIndicator("Screen: Not supported");
-        setStatus("Wake Lock API not supported on this browser.", "warn");
+        setWakeLockIndicator("screenNotSupp");
+        setStatus("msgWakeLockNotSupp", "warn");
         return;
       }
 
       try {
         wakeLock = await navigator.wakeLock.request("screen");
-        setWakeLockIndicator("Screen: On");
-        setStatus("Connected. Screen will stay awake while this tab is visible.", "ok");
+        setWakeLockIndicator("screenOn");
+        setStatus("msgWakeLockOn", "ok");
 
         wakeLock.addEventListener("release", () => {
-          setWakeLockIndicator("Screen: Released");
+          setWakeLockIndicator("screenRel");
         });
       } catch (err) {
         console.error("Wake Lock error", err);
-        setWakeLockIndicator("Screen: Error");
-        setStatus("Could not keep the screen awake (" + err.name + ")", "warn");
+        setWakeLockIndicator("screenErr");
+        setStatus("msgWakeLockErr", "warn", " (" + err.name + ")");
       }
     }
 
@@ -332,7 +445,7 @@
         ws.close();
       }
 
-      setStatus("Connecting to session " + sessionId + "...");
+      setStatus("msgConnecting", "info", sessionId + "...");
       setWsIndicator(false);
 
       ws = new WebSocket(BACKEND_WS_URL);
@@ -347,7 +460,7 @@
           controller_id: controllerId,
         };
         ws.send(JSON.stringify(joinMsg));
-        setStatus("Connected. You can now control the slides.", "ok");
+        setStatus("msgConnected", "ok");
         joinView.style.display = "none";
         controlsView.classList.add("active");
         requestWakeLock();
@@ -358,7 +471,7 @@
         try {
           const msg = JSON.parse(event.data);
           if (msg.type === "error" && msg.error === "session_not_found") {
-            setStatus("Session not found. Check the code and try again.", "error");
+            setStatus("msgSessionNotFound", "error");
             joinView.style.display = "block";
             controlsView.classList.remove("active");
             ws.close();
@@ -372,7 +485,7 @@
         console.log("WS closed", event.code, event.reason);
         setWsIndicator(false);
         if (controlsView.classList.contains("active")) {
-          setStatus("Disconnected from session. Tap Join to reconnect.", "warn");
+          setStatus("msgDisconnected", "warn");
           joinView.style.display = "block";
           controlsView.classList.remove("active");
         }
@@ -380,13 +493,13 @@
 
       ws.onerror = (event) => {
         console.error("WS error", event);
-        setStatus("WebSocket error. Check your connection.", "error");
+        setStatus("msgWsError", "error");
       };
     }
 
     function sendCommand(command) {
       if (!ws || ws.readyState !== WebSocket.OPEN) {
-        setStatus("Not connected. Join a session first.", "warn");
+        setStatus("msgNotConn", "warn");
         return;
       }
       if (!currentSessionId) return;
@@ -408,7 +521,7 @@
     joinBtn.addEventListener("click", () => {
       const raw = sessionInput.value.trim();
       if (!raw) {
-        setStatus("Enter the 4	6 character code from your computer.", "warn");
+        setStatus("msgInvalidCode", "warn");
         return;
       }
       const sessionId = raw.toUpperCase();

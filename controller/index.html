@@ -1,224 +1,291 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Slide Mobile Manager</title>
-  <style>
-    :root {
-      color-scheme: dark light;
-    }
-
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at top, #20263a, #050712);
-      color: #f5f5f5;
-    }
-
-    .shell {
-      width: 100%;
-      max-width: 960px;
-      padding: 24px;
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2.2fr);
-      gap: 28px;
-      background: rgba(15, 17, 30, 0.96);
-      border-radius: 20px;
-      padding: 24px 24px 20px;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    @media (max-width: 720px) {
-      .hero {
-        grid-template-columns: minmax(0, 1fr);
+  <title>Slide Mobile Manager - Control presentations from your phone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#050712',
+              card: '#0f111e',
+              border: 'rgba(255, 255, 255, 0.05)',
+              blue: '#5b8cff',
+              purple: '#9b6bff'
+            }
+          }
+        }
       }
     }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: 1.8rem;
-      letter-spacing: 0.03em;
-    }
-
-    .tagline {
-      margin: 0 0 16px;
-      font-size: 0.97rem;
-      opacity: 0.85;
-    }
-
-    .bullets {
-      margin: 0 0 18px;
-      padding-left: 18px;
-      font-size: 0.9rem;
-      opacity: 0.9;
-    }
-
-    .bullets li {
-      margin-bottom: 4px;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .btn {
-      border: none;
-      cursor: pointer;
-      border-radius: 999px;
-      padding: 11px 18px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      text-decoration: none;
-      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
-    }
-
-    .btn:active {
-      transform: scale(0.97);
-      box-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #5b8cff, #9b6bff);
-      color: #fff;
-      box-shadow: 0 8px 22px rgba(91, 140, 255, 0.5);
-      white-space: nowrap;
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.06);
+  </script>
+  <style>
+    body {
+      background: radial-gradient(circle at top, #20263a, #050712);
       color: #f5f5f5;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      padding: 9px 16px;
-    }
-
-    .meta {
-      font-size: 0.78rem;
-      opacity: 0.75;
-      margin-top: 6px;
-    }
-
-    .side-card {
-      border-radius: 16px;
-      background: rgba(7, 10, 24, 0.96);
-      padding: 16px 16px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 0.82rem;
-    }
-
-    .side-card h2 {
-      margin: 0 0 8px;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      opacity: 0.75;
-    }
-
-    .steps {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .steps li {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .steps .step-number {
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      background: rgba(91, 140, 255, 0.18);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      color: #c9d7ff;
-      flex-shrink: 0;
-    }
-
-    .steps .step-text {
-      opacity: 0.9;
-    }
-
-    .footnote {
-      font-size: 0.72rem;
-      opacity: 0.7;
-      margin-top: 8px;
+      background-attachment: fixed;
     }
   </style>
 </head>
-<body>
-  <main class="shell">
-    <section class="hero">
-      <div>
-        <h1>Slide Mobile Manager</h1>
-        <p class="tagline">Control your presentation slides from your phone while your computer stays on any network.</p>
+<body class="min-h-screen flex flex-col font-sans selection:bg-brand-blue selection:text-white">
 
-        <ul class="bullets">
-          <li>Agent app on your PC listens for Next/Prev commands.</li>
-          <li>Secure backend routes commands between your phone and PC.</li>
-          <li>Controller web page runs on your phoneno install required.</li>
-        </ul>
-
-        <div class="actions">
-          <a href="/remote/" class="btn btn-primary">Open controller</a>
-          <a href="https://github.com/frakneable/slide-mobile-manager/releases/download/v0.1.0/SlideMobileAgent.exe" class="btn btn-secondary">Download Windows agent</a>
+  <!-- Navigation -->
+  <nav class="sticky top-0 z-50 bg-brand-dark/80 backdrop-blur-md border-b border-brand-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex-shrink-0 flex items-center gap-2">
+          <!-- Simple Icon -->
+          <svg class="w-8 h-8 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+          <span class="font-bold text-xl tracking-tight">Slide Mobile</span>
         </div>
+        <div class="flex items-center">
+          <div class="hidden md:flex items-baseline space-x-6 mr-6">
+            <a href="#features" data-i18n="navFeatures" class="hover:text-brand-blue transition-colors px-3 py-2 rounded-md font-medium text-sm">Features</a>
+            <a href="#how-it-works" data-i18n="navHowItWorks" class="hover:text-brand-blue transition-colors px-3 py-2 rounded-md font-medium text-sm">How it Works</a>
+            <a href="https://github.com/frakneable/slide-mobile-manager" target="_blank" data-i18n="navGithub" class="hover:text-brand-blue transition-colors px-3 py-2 rounded-md font-medium text-sm">GitHub</a>
+          </div>
+          <button id="lang-toggle" class="bg-brand-card border border-brand-border hover:border-brand-blue/50 text-white px-3 py-1.5 rounded-md text-xs font-bold tracking-wide transition-colors">PT-BR</button>
+        </div>
+      </div>
+    </div>
+  </nav>
 
-        <p class="meta">
-          1) Install and run the Agent on your presentation computer.<br />
-          2) Scan the QR code in the Agent window or tap <strong>Open controller</strong> on your phone.<br />
-          3) Enter the short code and tap Next/Prev.
+  <main class="flex-grow">
+    <!-- Hero Section -->
+    <section class="relative pt-20 pb-28 sm:pt-32 sm:pb-36 overflow-hidden">
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-balance">
+        <h1 class="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-brand-blue to-brand-purple pb-2" data-i18n="heroTitle">
+          Ditch the Keyboard.<br />Present Freely.
+        </h1>
+        <p class="mt-4 max-w-2xl text-lg sm:text-xl text-gray-300 mx-auto mb-10 text-balance" data-i18n="heroSubtitle">
+          Control your PowerPoint, Keynote, or Google Slides presentations straight from your phone over the internet. No clicker, no dongles, no same-network constraints.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+          <a href="https://github.com/frakneable/slide-mobile-manager/releases/download/v0.1.0/SlideMobileAgent.exe" 
+             class="group w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-gradient-to-r from-brand-blue to-brand-purple text-white font-semibold py-4 px-8 rounded-full shadow-[0_8px_30px_rgb(91,140,255,0.4)] hover:shadow-[0_8px_30px_rgb(91,140,255,0.6)] transform hover:-translate-y-1 transition-all duration-200">
+            <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            <span data-i18n="heroDownload">Download Windows Agent</span>
+          </a>
+          
+          <a href="remote/" 
+             class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold py-4 px-8 rounded-full transition-all duration-200">
+            <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+            <span data-i18n="heroOpenWeb">Open Web Controller</span>
+          </a>
+        </div>
+        <p class="mt-8 text-sm text-gray-400">
+          <span data-i18n="heroDisclaimer1">Windows 10/11 &bull; <a href="https://github.com/frakneable/slide-mobile-manager" target="_blank" class="hover:text-white underline decoration-gray-500 underline-offset-2">100% Open Source and Safe</a> &bull; Free</span> <br/>
+          <span class="text-xs opacity-75 mt-2 inline-block" data-i18n="heroDisclaimer2">If prompted by Windows Defender SmartScreen, click "More info" &rarr; "Run anyway".</span>
         </p>
       </div>
+    </section>
 
-      <aside class="side-card">
-        <h2>How it works</h2>
-        <ul class="steps">
-          <li>
-            <span class="step-number">1</span>
-            <span class="step-text">Agent on your PC connects to the backend and receives a unique session code.</span>
-          </li>
-          <li>
-            <span class="step-number">2</span>
-            <span class="step-text">Your phone opens the controller page and joins using that code.</span>
-          </li>
-          <li>
-            <span class="step-number">3</span>
-            <span class="step-text">Button presses on the phone travel through the backend to your Agent, which presses the keyboard arrows for you.</span>
-          </li>
-        </ul>
+    <!-- Features Section -->
+    <section id="features" class="py-24 bg-brand-card/50 border-y border-brand-border">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl font-bold tracking-tight sm:text-4xl text-white" data-i18n="featuresTitle">Why use Slide Mobile?</h2>
+          <p class="mt-4 text-lg text-gray-400" data-i18n="featuresSubtitle">Everything you need to deliver a flawless presentation.</p>
+        </div>
 
-        <p class="footnote">
-          For best results, keep your slides app (PowerPoint, Keynote, etc.) in full-screen and focused on the presentation computer.
-        </p>
-      </aside>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div class="p-8 rounded-2xl bg-brand-dark border border-brand-border hover:border-brand-blue/30 transition-colors">
+            <div class="w-14 h-14 bg-brand-blue/10 rounded-xl flex items-center justify-center mb-6">
+              <svg class="w-8 h-8 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3" data-i18n="feature1Title">No Physical Clicker</h3>
+            <p class="text-gray-400 leading-relaxed" data-i18n="feature1Desc">Forget about bringing extra hardware. Your smartphone is the only remote you'll ever need.</p>
+          </div>
+
+          <div class="p-8 rounded-2xl bg-brand-dark border border-brand-border hover:border-brand-purple/30 transition-colors">
+            <div class="w-14 h-14 bg-brand-purple/10 rounded-xl flex items-center justify-center mb-6">
+              <svg class="w-8 h-8 text-brand-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3" data-i18n="feature2Title">Works Anywhere</h3>
+            <p class="text-gray-400 leading-relaxed" data-i18n="feature2Desc">Unlike Bluetooth or WiFi remotes, our secure cloud backend connects your phone to your PC across *any* network.</p>
+          </div>
+
+          <div class="p-8 rounded-2xl bg-brand-dark border border-brand-border hover:border-brand-blue/30 transition-colors">
+            <div class="w-14 h-14 bg-brand-blue/10 rounded-xl flex items-center justify-center mb-6">
+              <svg class="w-8 h-8 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3" data-i18n="feature3Title">Zero Configuration</h3>
+            <p class="text-gray-400 leading-relaxed" data-i18n="feature3Desc">No accounts, no router setup. Just scan the QR code and tap next. The web app keeps your phone screen fully awake.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it Works Section -->
+    <section id="how-it-works" class="py-24">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-balance mb-16">
+        <h2 class="text-3xl font-bold tracking-tight sm:text-4xl text-white" data-i18n="howItWorksTitle">How it Works</h2>
+        <p class="mt-4 text-lg text-gray-400" data-i18n="howItWorksSubtitle">Start controlling your presentation in less than a minute.</p>
+      </div>
+
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="relative flex flex-col items-center">
+          
+          <div class="space-y-12 w-full relative">
+            <div class="hidden md:block absolute left-12 top-12 bottom-12 w-0.5 bg-brand-border h-[80%]"></div>
+
+            <!-- Step 1 -->
+            <div class="relative flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10">
+              <div class="w-24 h-24 rounded-full bg-brand-dark border-2 border-brand-blue flex items-center justify-center text-3xl font-bold text-brand-blue shadow-[0_0_20px_rgb(91,140,255,0.2)] z-10 shrink-0">1</div>
+              <div class="flex-1 bg-brand-card border border-brand-border p-8 rounded-2xl w-full text-center md:text-left">
+                <h3 class="text-2xl font-bold text-white mb-3" data-i18n="step1Title">Run the Agent</h3>
+                <p class="text-gray-400 text-lg" data-i18n="step1Desc">Download and run the <code>SlideMobileAgent.exe</code> on your presentation PC. It securely waits for commands.</p>
+                <div class="mt-4 p-4 bg-brand-dark/50 border border-yellow-500/20 rounded-lg text-left">
+                  <p class="text-sm text-gray-300" data-i18n="step1Note">
+                    <strong class="text-yellow-500">Note:</strong> Because the file is unsigned, you may see a <em>"Windows protected your PC"</em> warning. Click <strong>More info</strong> &rarr; <strong>Run anyway</strong>. Our tool is <a href="https://github.com/frakneable/slide-mobile-manager" target="_blank" class="text-brand-blue hover:underline">100% open-source</a> so you can verify it's safe.
+                  </p>
+                </div>
+                <div class="mt-6 flex justify-center md:justify-start">
+                  <a href="https://github.com/frakneable/slide-mobile-manager/releases/download/v0.1.0/SlideMobileAgent.exe" class="text-brand-blue hover:text-white transition-colors text-sm font-semibold inline-flex items-center gap-1">
+                    <span data-i18n="step1Download">Download Agent</span> <svg class="w-4 h-4 ml-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="relative flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10">
+              <div class="w-24 h-24 rounded-full bg-brand-dark border-2 border-brand-purple flex items-center justify-center text-3xl font-bold text-brand-purple shadow-[0_0_20px_rgb(155,107,255,0.2)] z-10 shrink-0">2</div>
+              <div class="flex-1 bg-brand-card border border-brand-border p-8 rounded-2xl w-full text-center md:text-left">
+                <h3 class="text-2xl font-bold text-white mb-3" data-i18n="step2Title">Scan the QR Code</h3>
+                <p class="text-gray-400 text-lg" data-i18n="step2Desc">The Windows Agent will display a QR code and a 6-digit session pin. Point your phone's camera at it to instantly open the web controller.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="relative flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10">
+              <div class="w-24 h-24 rounded-full bg-brand-dark border-2 border-green-500 flex items-center justify-center text-3xl font-bold text-green-500 shadow-[0_0_20px_rgba(34,197,94,0.2)] z-10 shrink-0">3</div>
+              <div class="flex-1 bg-brand-card border border-brand-border p-8 rounded-2xl w-full text-center md:text-left">
+                <h3 class="text-2xl font-bold text-white mb-3" data-i18n="step3Title">Present Freely</h3>
+                <p class="text-gray-400 text-lg" data-i18n="step3Desc">Put your slides (PowerPoint/Keynote) in full screen. Tap the large, touch-optimized Prev/Next buttons on your phone to drive the presentation.</p>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
     </section>
   </main>
+
+  <!-- Footer -->
+  <footer class="bg-brand-dark py-12 border-t border-brand-border mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+      <div class="flex items-center gap-2">
+        <svg class="w-6 h-6 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+        <span class="font-bold text-lg">Slide Mobile Manager</span>
+      </div>
+      <p class="text-gray-500 text-sm" data-i18n="footerText">
+        &copy; 2026 Slide Mobile Manager. Open source.
+      </p>
+      <div class="flex gap-4 items-center justify-center">
+        <a href="https://github.com/frakneable/slide-mobile-manager" target="_blank" class="text-gray-500 hover:text-white transition-colors">
+          <span class="sr-only">GitHub</span>
+          <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" /></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const translations = {
+      en: {
+        navFeatures: "Features",
+        navHowItWorks: "How it Works",
+        navGithub: "GitHub",
+        heroTitle: "Ditch the Keyboard.<br/>Present Freely.",
+        heroSubtitle: "Control your PowerPoint, Keynote, or Google Slides presentations straight from your phone over the internet. No clicker, no dongles, no same-network constraints.",
+        heroDownload: "Download Windows Agent",
+        heroOpenWeb: "Open Web Controller",
+        heroDisclaimer1: 'Windows 10/11 &bull; <a href="https://github.com/frakneable/slide-mobile-manager" target="_blank" class="hover:text-white underline decoration-gray-500 underline-offset-2">100% Open Source and Safe</a> &bull; Free',
+        heroDisclaimer2: 'If prompted by Windows Defender SmartScreen, click "More info" &rarr; "Run anyway".',
+        featuresTitle: "Why use Slide Mobile?",
+        featuresSubtitle: "Everything you need to deliver a flawless presentation.",
+        feature1Title: "No Physical Clicker",
+        feature1Desc: "Forget about bringing extra hardware. Your smartphone is the only remote you'll ever need.",
+        feature2Title: "Works Anywhere",
+        feature2Desc: "Unlike Bluetooth or WiFi remotes, our secure cloud backend connects your phone to your PC across *any* network.",
+        feature3Title: "Zero Configuration",
+        feature3Desc: "No accounts, no router setup. Just scan the QR code and tap next. The web app keeps your phone screen fully awake.",
+        howItWorksTitle: "How it Works",
+        howItWorksSubtitle: "Start controlling your presentation in less than a minute.",
+        step1Title: "Run the Agent",
+        step1Desc: "Download and run the <code>SlideMobileAgent.exe</code> on your presentation PC. It securely waits for commands.",
+        step1Note: '<strong class="text-yellow-500">Note:</strong> Because the file is unsigned, you may see a <em>"Windows protected your PC"</em> warning. Click <strong>More info</strong> &rarr; <strong>Run anyway</strong>. Our tool is <a href="https://github.com/frakneable/slide-mobile-manager" target="_blank" class="text-brand-blue hover:underline">100% open-source</a> so you can verify it\'s safe.',
+        step1Download: 'Download Agent',
+        step2Title: "Scan the QR Code",
+        step2Desc: "The Windows Agent will display a QR code and a 6-digit session pin. Point your phone's camera at it to instantly open the web controller.",
+        step3Title: "Present Freely",
+        step3Desc: "Put your slides (PowerPoint/Keynote) in full screen. Tap the large, touch-optimized Prev/Next buttons on your phone to drive the presentation.",
+        footerText: "&copy; 2026 Slide Mobile Manager. Open source."
+      },
+      pt: {
+        navFeatures: "Recursos",
+        navHowItWorks: "Como Funciona",
+        navGithub: "GitHub",
+        heroTitle: "Abandone o Teclado.<br/>Apresente Livremente.",
+        heroSubtitle: "Controle suas apresentações do PowerPoint, Keynote ou Google Slides diretamente do seu celular pela internet. Sem passadores, sem adaptadores, sem restrições de rede.",
+        heroDownload: "Baixar Agente Windows",
+        heroOpenWeb: "Abrir Controle Web",
+        heroDisclaimer1: 'Windows 10/11 &bull; <a href="https://github.com/frakneable/slide-mobile-manager" target="_blank" class="hover:text-white underline decoration-gray-500 underline-offset-2">100% Código Aberto e Seguro</a> &bull; Grátis',
+        heroDisclaimer2: 'Se o Windows Defender SmartScreen avisar, clique em "Mais informações" &rarr; "Executar assim mesmo".',
+        featuresTitle: "Por que usar o Slide Mobile?",
+        featuresSubtitle: "Tudo o que você precisa para uma apresentação impecável.",
+        feature1Title: "Sem Passador Físico",
+        feature1Desc: "Esqueça carregar hardware extra. Seu smartphone é o único controle que você vai precisar.",
+        feature2Title: "Funciona em Qualquer Lugar",
+        feature2Desc: "Diferente de controles Bluetooth ou WiFi, nosso backend seguro na nuvem conecta seu celular ao PC em *qualquer* rede.",
+        feature3Title: "Configuração Zero",
+        feature3Desc: "Sem contas, sem configurar roteador. Basta escanear o QR code e tocar em avançar. O web app mantém a tela do seu celular acesa.",
+        howItWorksTitle: "Como Funciona",
+        howItWorksSubtitle: "Comece a controlar sua apresentação em menos de um minuto.",
+        step1Title: "Execute o Agente",
+        step1Desc: "Baixe e execute o <code>SlideMobileAgent.exe</code> no PC da apresentação. Ele aguarda seus comandos de forma segura.",
+        step1Note: '<strong class="text-yellow-500">Nota:</strong> Como o arquivo não é assinado, você pode ver um aviso <em>"O Windows protegeu o seu computador"</em>. Clique em <strong>Mais informações</strong> &rarr; <strong>Executar assim mesmo</strong>. Nossa ferramenta é <a href="https://github.com/frakneable/slide-mobile-manager" target="_blank" class="text-brand-blue hover:underline">100% código aberto</a> para que você possa verificar sua segurança.',
+        step1Download: 'Baixar Agente',
+        step2Title: "Escaneie o QR Code",
+        step2Desc: "O Agente Windows exibirá um código QR e um PIN de sessão de 6 dígitos. Aponte a câmera do seu celular para ele para abrir instantaneamente o controlador web.",
+        step3Title: "Apresente Livremente",
+        step3Desc: "Coloque seus slides (PowerPoint/Keynote) em tela cheia. Toque nos botões grandes (Avançar/Voltar) no seu celular para guiar a apresentação.",
+        footerText: "&copy; 2026 Slide Mobile Manager. Código aberto."
+      }
+    };
+
+    let currentLang = localStorage.getItem("preferredLang");
+    if (!currentLang) {
+      const browserLang = navigator.language || navigator.userLanguage;
+      currentLang = browserLang.toLowerCase().includes("pt") ? "pt" : "en";
+    }
+
+    function applyTranslations(lang) {
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (translations[lang] && translations[lang][key]) {
+          el.innerHTML = translations[lang][key];
+        }
+      });
+      const toggleBtn = document.getElementById("lang-toggle");
+      if (toggleBtn) {
+        toggleBtn.textContent = lang === "en" ? "PT-BR" : "EN-US";
+      }
+    }
+
+    applyTranslations(currentLang);
+
+    document.getElementById("lang-toggle").addEventListener("click", () => {
+      currentLang = currentLang === "en" ? "pt" : "en";
+      localStorage.setItem("preferredLang", currentLang);
+      applyTranslations(currentLang);
+    });
+  </script>
 </body>
 </html>
