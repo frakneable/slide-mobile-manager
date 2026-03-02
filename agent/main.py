@@ -15,7 +15,7 @@ import os
 import threading
 import queue
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 import pyautogui
@@ -33,6 +33,37 @@ except Exception:  # pragma: no cover - Tkinter may not be available in some env
 
 BCK_DEFAULT_URL = "wss://slide-mobile-manager.onrender.com/ws/agent"
 BACKEND_URL = os.getenv("SLIDE_BACKEND_URL", BCK_DEFAULT_URL)
+
+TRANSLATIONS: dict[str, dict[str, str]] = {
+    "en-US": {
+        "title": "Slide Mobile Agent",
+        "session_code": "Session code:",
+        "status": "Status:",
+        "qr_label": "Scan this QR code on your phone to open the controller:",
+        "quit": "Quit",
+        "last_error": "Last error:",
+        "starting": "Starting...",
+        "connecting": "Connecting to backend...",
+        "connected": "Connected. Waiting for commands...",
+        "disconnected": "Disconnected. Reconnecting...",
+        "error_reconnecting": "Error. Reconnecting...",
+        "lang_btn": "PT-BR",
+    },
+    "pt-BR": {
+        "title": "Slide Mobile Agent",
+        "session_code": "Código da sessão:",
+        "status": "Status:",
+        "qr_label": "Escaneie este QR code no seu celular para abrir o controle:",
+        "quit": "Sair",
+        "last_error": "Último erro:",
+        "starting": "Iniciando...",
+        "connecting": "Conectando ao servidor...",
+        "connected": "Conectado. Aguardando comandos...",
+        "disconnected": "Desconectado. Reconectando...",
+        "error_reconnecting": "Erro. Reconectando...",
+        "lang_btn": "EN-US",
+    },
+}
 
 # Base URL for the controller web UI used to build QR codes.
 # Set SLIDE_CONTROLLER_URL or change the default before building
@@ -58,7 +89,7 @@ pyautogui.FAILSAFE = False
 @dataclass
 class UiState:
     running: bool = True
-    status_text: str = "Starting..."
+    status_key: str = "starting"
     session_id: str = "-"
     last_error: Optional[str] = None
 
@@ -114,7 +145,7 @@ async def agent_loop(ui_state: UiState, ui_queue: "queue.Queue[dict]") -> None:
     agent_id = os.getenv("SLIDE_AGENT_ID", f"pc-{uuid.uuid4().hex[:8]}")
 
     while ui_state.running:
-        ui_state.status_text = "Connecting to backend..."
+        ui_state.status_key = "connecting"
         ui_queue.put({"type": "status"})
         print(f"[agent] Connecting to backend at {BACKEND_URL} as agent_id={agent_id} ...")
 
@@ -137,7 +168,7 @@ async def agent_loop(ui_state: UiState, ui_queue: "queue.Queue[dict]") -> None:
                     raise RuntimeError(f"Unexpected first message from backend: {data}")
 
                 ui_state.session_id = data["session_id"]
-                ui_state.status_text = "Connected. Waiting for commands..."
+                ui_state.status_key = "connected"
                 ui_state.last_error = None
                 ui_queue.put({"type": "session"})
                 print("========================================")
@@ -175,7 +206,7 @@ async def agent_loop(ui_state: UiState, ui_queue: "queue.Queue[dict]") -> None:
             ui_state.last_error = str(exc)
             if not ui_state.running:
                 break
-            ui_state.status_text = "Disconnected. Reconnecting..."
+            ui_state.status_key = "disconnected"
             ui_queue.put({"type": "status"})
             print(f"[agent] Connection closed, will retry in {RECONNECT_DELAY_SECONDS}s: {exc}")
             await asyncio.sleep(RECONNECT_DELAY_SECONDS)
@@ -183,7 +214,7 @@ async def agent_loop(ui_state: UiState, ui_queue: "queue.Queue[dict]") -> None:
             ui_state.last_error = str(exc)
             if not ui_state.running:
                 break
-            ui_state.status_text = "Error. Reconnecting..."
+            ui_state.status_key = "error_reconnecting"
             ui_queue.put({"type": "status"})
             print(f"[agent] Unexpected error, will retry in {RECONNECT_DELAY_SECONDS}s: {exc}")
             await asyncio.sleep(RECONNECT_DELAY_SECONDS)
@@ -204,6 +235,10 @@ def run_gui() -> None:
 
     ui_state = UiState()
     ui_queue: "queue.Queue[dict]" = queue.Queue()
+    current_lang = {"value": "en-US"}
+
+    def t(key: str) -> str:
+        return TRANSLATIONS[current_lang["value"]][key]
 
     # Start background worker thread
     worker = threading.Thread(target=start_agent_worker, args=(ui_state, ui_queue), daemon=True)
@@ -216,21 +251,25 @@ def run_gui() -> None:
     main_frame = ttk.Frame(root, padding=16)
     main_frame.grid(row=0, column=0, sticky="nsew")
 
-    tk.Label(main_frame, text="Slide Mobile Agent", font=("Segoe UI", 14, "bold")).grid(row=0, column=0, columnspan=2, pady=(0, 8))
+    title_var = tk.StringVar(value=t("title"))
+    tk.Label(main_frame, textvariable=title_var, font=("Segoe UI", 14, "bold")).grid(row=0, column=0, columnspan=2, pady=(0, 8))
 
-    tk.Label(main_frame, text="Session code:", font=("Segoe UI", 10)).grid(row=1, column=0, sticky="w")
+    session_code_var = tk.StringVar(value=t("session_code"))
+    tk.Label(main_frame, textvariable=session_code_var, font=("Segoe UI", 10)).grid(row=1, column=0, sticky="w")
     session_var = tk.StringVar(value="-")
     session_label = tk.Label(main_frame, textvariable=session_var, font=("Consolas", 14, "bold"))
     session_label.grid(row=1, column=1, sticky="e")
 
-    tk.Label(main_frame, text="Status:", font=("Segoe UI", 10)).grid(row=2, column=0, sticky="w", pady=(8, 0))
-    status_var = tk.StringVar(value=ui_state.status_text)
+    status_lbl_var = tk.StringVar(value=t("status"))
+    tk.Label(main_frame, textvariable=status_lbl_var, font=("Segoe UI", 10)).grid(row=2, column=0, sticky="w", pady=(8, 0))
+    status_var = tk.StringVar(value=t(ui_state.status_key))
     status_label = tk.Label(main_frame, textvariable=status_var, font=("Segoe UI", 9), wraplength=260, justify="left")
     status_label.grid(row=2, column=1, sticky="w", pady=(8, 0))
 
+    qr_lbl_var = tk.StringVar(value=t("qr_label"))
     tk.Label(
         main_frame,
-        text="Scan this QR code on your phone to open the controller:",
+        textvariable=qr_lbl_var,
         font=("Segoe UI", 9),
         wraplength=260,
         justify="left",
@@ -245,8 +284,31 @@ def run_gui() -> None:
         ui_state.running = False
         root.destroy()
 
-    quit_btn = ttk.Button(main_frame, text="Quit", command=on_quit)
-    quit_btn.grid(row=5, column=0, columnspan=2, pady=(16, 0))
+    btn_frame = ttk.Frame(main_frame)
+    btn_frame.grid(row=5, column=0, columnspan=2, pady=(16, 0))
+
+    quit_btn_var = tk.StringVar(value=t("quit"))
+    quit_btn = ttk.Button(btn_frame, textvariable=quit_btn_var, command=on_quit)
+    quit_btn.grid(row=0, column=0, padx=(0, 8))
+
+    lang_btn_var = tk.StringVar(value=t("lang_btn"))
+
+    def toggle_language() -> None:
+        current_lang["value"] = "pt-BR" if current_lang["value"] == "en-US" else "en-US"
+        title_var.set(t("title"))
+        session_code_var.set(t("session_code"))
+        status_lbl_var.set(t("status"))
+        qr_lbl_var.set(t("qr_label"))
+        quit_btn_var.set(t("quit"))
+        lang_btn_var.set(t("lang_btn"))
+        # Re-translate the current status text
+        status_text = t(ui_state.status_key)
+        if ui_state.last_error:
+            status_text = f"{status_text}\n{t('last_error')} {ui_state.last_error}"
+        status_var.set(status_text)
+
+    lang_btn = ttk.Button(btn_frame, textvariable=lang_btn_var, command=toggle_language)
+    lang_btn.grid(row=0, column=1)
 
     def update_qr() -> None:
         url = build_controller_url(ui_state.session_id)
@@ -270,9 +332,9 @@ def run_gui() -> None:
                 break
             if msg.get("type") in {"status", "session"}:
                 session_var.set(ui_state.session_id or "-")
-                status_text = ui_state.status_text
+                status_text = t(ui_state.status_key)
                 if ui_state.last_error:
-                    status_text = f"{status_text}\nLast error: {ui_state.last_error}"
+                    status_text = f"{status_text}\n{t('last_error')} {ui_state.last_error}"
                 status_var.set(status_text)
                 if msg.get("type") == "session":
                     update_qr()
